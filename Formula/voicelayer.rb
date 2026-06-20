@@ -4,9 +4,12 @@ class Voicelayer < Formula
   url "https://registry.npmjs.org/voicelayer-mcp/-/voicelayer-mcp-2.1.4.tgz"
   sha256 "6fdc09b397eaebcc4d2164c896311f9a16a9c0cd84629980cefabe27ddbad5ed"
   license "Apache-2.0"
-  revision 1
+  revision 2
 
+  depends_on "bun"
   depends_on "node"
+  depends_on "socat"
+  depends_on "sox"
 
   def install
     system "npm", "install", *std_npm_args
