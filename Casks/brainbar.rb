@@ -102,5 +102,12 @@ cask "brainbar" do
     account/computer rename), remove it once with sudo, then reinstall:
       sudo rm -rf /opt/homebrew/Caskroom/brainbar
       brew install --cask brainbar
+
+    On a CLONED/RENAMED Mac, "brew upgrade --cask brainbar" may demand sudo to
+    remove the old BrainBar.app even when every file is user-owned (a Homebrew
+    clone heuristic). Avoid sudo by replacing the upgrade with a clean reinstall:
+      mv "/Applications/BrainBar.app" ~/.Trash/ 2>/dev/null
+      mv "$(brew --prefix)/Caskroom/brainbar" ~/.Trash/ 2>/dev/null
+      brew install --cask brainbar
   EOS
 end
