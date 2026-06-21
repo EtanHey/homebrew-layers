@@ -1,9 +1,8 @@
 cask "brainbar" do
-  version "1.3.0"
-  revision 1
+  version "1.3.0,1"
   sha256 "059ff902d48a7dd2e4a9463c4d7131fd23ead2c5de7957e74c6db56d2025977a"
 
-  url "https://github.com/EtanHey/brainlayer/releases/download/v#{version}/BrainBar.zip"
+  url "https://github.com/EtanHey/brainlayer/releases/download/v#{version.csv.first}/BrainBar.zip"
   name "BrainBar"
   desc "BrainLayer menu-bar app and local MCP socket"
   homepage "https://github.com/EtanHey/brainlayer"
