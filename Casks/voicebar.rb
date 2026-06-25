@@ -15,6 +15,7 @@ cask "voicebar" do
   postflight do
     system_command "#{HOMEBREW_PREFIX}/bin/voicelayer",
                    args:         ["setup"],
+                   env:          { "PATH" => "#{HOMEBREW_PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin" },
                    print_stdout: true,
                    print_stderr: true
   end
