@@ -11,7 +11,7 @@ class Brainlayer < Formula
     venv = libexec/"venv"
     python = Formula["python"].opt_bin/"python3"
     system python, "-m", "venv", venv
-    system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "brainlayer==#{version}"
+    system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "brainlayer[cloud]==#{version}"
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp"
   end
