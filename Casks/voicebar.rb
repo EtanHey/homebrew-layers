@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 cask "voicebar" do
   version "2.1.9"
   sha256 "997ca2f4e0d75d0fdc063c7d5e4262a30b02204f42d858c78f2b2b10a1fd1be0"
@@ -43,5 +45,8 @@ cask "voicebar" do
 
     If setup did not complete during cask install, run:
       voicelayer setup
+
+    To sync voices, vocabulary, and the VoiceLayer daemon secret from another Mac:
+      voicelayer update --data-mode direct --data-source <source-host>:/Users/<source-user>
   EOS
 end
