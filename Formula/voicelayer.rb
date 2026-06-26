@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
+# VoiceLayer formula.
 class Voicelayer < Formula
   desc "Voice I/O layer and MCP tools for AI coding assistants"
   homepage "https://github.com/EtanHey/voicelayer"
-  url "https://registry.npmjs.org/voicelayer-mcp/-/voicelayer-mcp-2.1.6.tgz"
-  sha256 "7dbf9af4ab48838ad2655df891e282bae5e48366799eacc6517845c3fc70d512"
+  url "https://registry.npmjs.org/voicelayer-mcp/-/voicelayer-mcp-2.1.9.tgz"
+  sha256 "8ddf3c7661a740296aad0471e98efc195c60cac934f7685ac6d73be8189e811f"
   license "Apache-2.0"
 
   depends_on "bun"
@@ -31,6 +34,9 @@ class Voicelayer < Formula
 
       To connect MCP clients to the VoiceLayer daemon socket, use:
         socat STDIO UNIX-CONNECT:/tmp/voicelayer-mcp.sock
+
+      To sync voices, vocabulary, and the VoiceLayer daemon secret from another Mac:
+        voicelayer update --data-mode direct --data-source <source-host>:/Users/<source-user>
     EOS
   end
 
