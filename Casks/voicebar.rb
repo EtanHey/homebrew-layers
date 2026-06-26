@@ -1,6 +1,6 @@
 cask "voicebar" do
-  version "2.1.8"
-  sha256 "a5a0f3c59af58ff96455b1f88cbfc72e302317dd07541bd06f95c41c4602cceb"
+  version "2.1.9"
+  sha256 "997ca2f4e0d75d0fdc063c7d5e4262a30b02204f42d858c78f2b2b10a1fd1be0"
 
   url "https://github.com/EtanHey/voicelayer/releases/download/v#{version}/VoiceBar.zip"
   name "VoiceBar"
