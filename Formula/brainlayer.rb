@@ -12,6 +12,8 @@ class Brainlayer < Formula
     venv = libexec/"venv"
     python = Formula["python@3.13"].opt_bin/"python3.13"
     no_binary = "cbor2,orjson,pydantic-core,rpds-py,safetensors,tokenizers"
+    ENV.append "RUSTFLAGS", "-C link-arg=-undefined -C link-arg=dynamic_lookup " \
+                            "-C link-arg=-Wl,-headerpad_max_install_names"
     system python, "-m", "venv", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "brainlayer[cloud]==#{version}"
