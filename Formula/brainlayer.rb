@@ -5,6 +5,7 @@ class Brainlayer < Formula
   sha256 "e83411fa729db58c8e2cd2174314206d44ca8d3af7a3a2014057cec9767365e1"
   license "Apache-2.0"
 
+  depends_on "rust" => :build
   depends_on "python"
 
   def install
