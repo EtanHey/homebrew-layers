@@ -52,22 +52,20 @@ cask "brainbar" do
       "com.brainlayer.brainbar"        => "#{app_path}/Contents/MacOS/BrainBar",
     }.each do |label, executable|
       plist_path = "#{launch_agents}/#{label}.plist"
-      unless File.exist?(plist_path)
-        File.write(plist_path, <<~XML)
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-            <key>Label</key><string>#{label}</string>
-            <key>ProgramArguments</key><array><string>#{executable}</string></array>
-            <key>RunAtLoad</key><true/>
-            <key>KeepAlive</key><true/>
-            <key>ProcessType</key><string>Interactive</string>
-            <key>ThrottleInterval</key><integer>10</integer>
-          </dict>
-          </plist>
-        XML
-      end
+      File.write(plist_path, <<~XML)
+        <?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+        <plist version="1.0">
+        <dict>
+          <key>Label</key><string>#{label}</string>
+          <key>ProgramArguments</key><array><string>#{executable}</string></array>
+          <key>RunAtLoad</key><true/>
+          <key>KeepAlive</key><true/>
+          <key>ProcessType</key><string>Interactive</string>
+          <key>ThrottleInterval</key><integer>10</integer>
+        </dict>
+        </plist>
+      XML
       system_command "/bin/launchctl", args: ["bootout", "#{domain}/#{label}"], must_succeed: false
       system_command "/bin/launchctl", args: ["bootstrap", domain, plist_path], must_succeed: false
       system_command "/bin/launchctl", args: ["kickstart", "-k", "#{domain}/#{label}"], must_succeed: false
