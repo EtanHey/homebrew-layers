@@ -6,11 +6,11 @@ class Brainlayer < Formula
   license "Apache-2.0"
 
   depends_on "rust" => :build
-  depends_on "python"
+  depends_on "python@3.13"
 
   def install
     venv = libexec/"venv"
-    python = Formula["python"].opt_bin/"python3"
+    python = Formula["python@3.13"].opt_bin/"python3.13"
     no_binary = "cbor2,orjson,pydantic-core,rpds-py,safetensors,tokenizers"
     system python, "-m", "venv", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
