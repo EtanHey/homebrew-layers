@@ -11,8 +11,9 @@ class Brainlayer < Formula
   def install
     venv = libexec/"venv"
     python = Formula["python"].opt_bin/"python3"
+    no_binary = "cbor2,orjson,pydantic-core,rpds-py,safetensors,tokenizers"
     system python, "-m", "venv", venv
-    system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=cbor2",
+    system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "brainlayer[cloud]==#{version}"
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp"
