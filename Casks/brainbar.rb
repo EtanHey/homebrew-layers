@@ -1,6 +1,6 @@
 cask "brainbar" do
-  version "1.4.4"
-  sha256 "d1bbff7b59d048d676a2263ab9722ad3fe33e705e9209c86ff137c27e6a484da"
+  version "1.4.5"
+  sha256 "f6eaecff25b34d42f5f8092e3aa79a53f2fc566f7d035270f906b6487ef37a26"
 
   url "https://github.com/EtanHey/brainlayer/releases/download/v#{version.csv.first}/BrainBar.zip"
   name "BrainBar"
