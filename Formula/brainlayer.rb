@@ -1,8 +1,11 @@
+# frozen_string_literal: true
+
+# BrainLayer formula.
 class Brainlayer < Formula
   desc "Persistent memory layer and MCP tools for AI agents"
   homepage "https://github.com/EtanHey/brainlayer"
-  url "https://files.pythonhosted.org/packages/8f/db/75e56d7c310a014146106930ff24df6e2d1549f78c8b55a6e7ac57876f05/brainlayer-1.5.1.tar.gz"
-  sha256 "71cc1f518a6a167097d36b730ee83b22d4087e4f98bb6ec74ee2ecf3114f7d4a"
+  url "https://files.pythonhosted.org/packages/f5/60/a2ce12ebdbcdd33a8c80eb3b494c69af988f9b5b5f413dfe403fcfd8b5c2/brainlayer-1.5.2.tar.gz"
+  sha256 "66fe8124d345e12e344f9f4d68e9ed5cf7d619ea61fc7b567d99090d37f70fa7"
   license "Apache-2.0"
 
   depends_on "rust" => :build
