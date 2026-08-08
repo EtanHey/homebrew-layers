@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 cask "brainbar" do
   version "1.5.1"
   sha256 "af37918d5fbce9dc975cd88a9fc8e1a089915966607ffede65e26786df9974a2"
@@ -31,11 +33,6 @@ cask "brainbar" do
   end
 
   postflight do
-    system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
-                   args:         ["setup"],
-                   print_stdout: true,
-                   print_stderr: true
-
     # #7c: BrainBar.app does not spawn its daemon on launch (it only discovers an
     # existing one), and the daemon/UI LaunchAgents are removed on uninstall and
     # never recreated — so the fleet brain_search socket /tmp/brainbar.sock stays
@@ -70,6 +67,19 @@ cask "brainbar" do
       system_command "/bin/launchctl", args: ["bootstrap", domain, plist_path], must_succeed: false
       system_command "/bin/launchctl", args: ["kickstart", "-k", "#{domain}/#{label}"], must_succeed: false
     end
+
+    # The daemon must be live before setup verifies the real MCP transport.
+    # Migration is exact-match only and verification fails the install loudly
+    # when the packaged socket cannot initialize and list its tools.
+    100.times do
+      break if File.socket?("/tmp/brainbar.sock")
+
+      sleep 0.1
+    end
+    system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
+                   args:         ["setup", "--migrate-mcp", "--verify-mcp"],
+                   print_stdout: true,
+                   print_stderr: true
   end
 
   uninstall launchctl: [
