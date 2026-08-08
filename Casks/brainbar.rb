@@ -79,7 +79,8 @@ cask "brainbar" do
     system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
                    args:         ["setup", "--migrate-mcp", "--verify-mcp"],
                    print_stdout: true,
-                   print_stderr: true
+                   print_stderr: true,
+                   must_succeed: true
   end
 
   uninstall launchctl: [
