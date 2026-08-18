@@ -1,8 +1,8 @@
 class Cmuxlayer < Formula
   desc "Terminal multiplexer MCP server for AI agent workspace orchestration"
   homepage "https://github.com/EtanHey/cmuxlayer"
-  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.41.tar.gz"
-  sha256 "9c2344b78f6233caef4db4de6643286e52782a38e65c9bce91738fa0357b6737"
+  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.42.tar.gz"
+  sha256 "aa59a148b030c76e42ae1f275bf6c64f6c5b5e841667c1cca65e6d5bfb144ce6"
   license "Apache-2.0"
   head "https://github.com/EtanHey/cmuxlayer.git", branch: "main"
 
