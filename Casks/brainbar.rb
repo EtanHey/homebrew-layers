@@ -88,7 +88,11 @@ cask "brainbar" do
               "com.brainlayer.brainbar-daemon",
             ],
             quit:      "com.brainlayer.BrainBar",
-            delete:    [
+            # `delete:` always shells out to `sudo rm`, which has no TTY over ssh and
+            # aborts the whole uninstall — including the upgrade path, which runs
+            # uninstall first. Nothing in ~/Library/LaunchAgents is root-owned, so
+            # `trash:` removes the same files without asking for a password.
+            trash:     [
               "~/Library/LaunchAgents/com.brainlayer.brainbar-daemon.plist",
               "~/Library/LaunchAgents/com.brainlayer.brainbar.plist",
             ]
