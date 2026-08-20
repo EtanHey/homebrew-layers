@@ -4,8 +4,8 @@
 class Brainlayer < Formula
   desc "Persistent memory layer and MCP tools for AI agents"
   homepage "https://github.com/EtanHey/brainlayer"
-  url "https://files.pythonhosted.org/packages/3d/aa/a519a492141022d23817c670c87fc4dd157d33ac222a830143115d8b5f23/brainlayer-1.5.8.tar.gz"
-  sha256 "6561932e5c31b93b869c1ef538372ebd884884011072cc83b195733dc3478161"
+  url "https://files.pythonhosted.org/packages/0b/b0/bf847a8ef897555116117091660c5c01cbe2f559e66f1a867cc05ef346ab/brainlayer-1.5.9.tar.gz"
+  sha256 "9f50c70cbc7f4f7c11eeb2ae2910fad35b5231b516342e34469a1fac2832ba9e"
   license "Apache-2.0"
 
   depends_on "rust" => :build
@@ -21,7 +21,6 @@ class Brainlayer < Formula
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "brainlayer[cloud]==#{version}"
     bin.install_symlink venv/"bin/brainlayer"
-    bin.install_symlink venv/"bin/brainlayer-mcp"
     bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
 
@@ -45,7 +44,6 @@ class Brainlayer < Formula
 
   test do
     assert_match "Usage:", shell_output("#{bin}/brainlayer --help")
-    assert_path_exists bin/"brainlayer-mcp"
     assert_path_exists bin/"brainlayer-mcp-stdio-bridge"
   end
 end
