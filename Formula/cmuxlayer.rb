@@ -1,8 +1,8 @@
 class Cmuxlayer < Formula
   desc "Terminal multiplexer MCP server for AI agent workspace orchestration"
   homepage "https://github.com/EtanHey/cmuxlayer"
-  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.64.tar.gz"
-  sha256 "a448576479bf55832344a41aa48ea72dd84318af25f4362f7950f7359eda666b"
+  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.65.tar.gz"
+  sha256 "47a2eae6240891d84a8792f7b168735f2b55430d9954f62b7c309b583815d4fe"
   license "Apache-2.0"
   head "https://github.com/EtanHey/cmuxlayer.git", branch: "main"
 
@@ -27,7 +27,7 @@ class Cmuxlayer < Formula
     entries.each do |cmd, entry|
       (bin/cmd).write <<~SH
         #!/bin/bash
-        exec "#{Formula["node"].opt_bin}/node" "#{libexec}/dist/#{entry}" "$@"
+        exec "#{formula_opt_bin("node")}/node" "#{libexec}/dist/#{entry}" "$@"
       SH
       chmod 0755, bin/cmd
     end
