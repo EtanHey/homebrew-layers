@@ -20,13 +20,38 @@ class Brainlayer < Formula
     system python, "-m", "venv", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "brainlayer[cloud]==#{version}"
+    bin.install_symlink venv/"bin/brainlayer"
+    bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
+  end
+
+  # Sweep AFTER relocation, not during `install`.
+  #
+  # `FormulaInstaller#finish` runs `fix_dynamic_linkage` (formula_installer.rb:1014)
+  # before `post_install` (formula_installer.rb:1031), so an `install`-time sweep is
+  # always upstream of relocation and cannot be the last word on signatures.
+  #
+  # On this keg relocation also aborts partway: `change_dylib_id` on
+  # `cramjam.cpython-313-darwin.so` raises `MachO::HeaderPadError` and
+  # extend/os/mac/keg.rb:56 re-raises it out of the `mach_o_files.each` loop in
+  # extend/os/mac/keg_relocate.rb:81-125. `codesign_patched_binaries`
+  # (keg_relocate.rb:129) sits after that loop, so it never runs, and every file
+  # already rewritten by `file.save_changes` (keg_relocate.rb:122) keeps a stale
+  # signature: `invalid signature (code or signature have been modified)`. That is
+  # 1.5.11 on an M4 Max — 442 files signed during `install`, 20 invalid afterwards.
+  # `FormulaInstaller` only `ofail`s that (formula_installer.rb:1391-1393), which
+  # just sets a flag (utils/output.rb:122-125), so `finish` continues and
+  # `post_install` still runs. Signing last is therefore both necessary and
+  # sufficient.
+  #
+  # Idempotent by construction (`brew postinstall brainlayer` re-runs it) and
+  # fail-closed: empty glob is fatal, and `--verify` raises on any invalid file.
+  def post_install
+    venv = libexec/"venv"
     # FNM_DOTMATCH: wheels ship dylibs in dot-dirs (PIL/.dylibs), which a plain glob skips.
     native_extensions = Dir.glob("#{venv}/**/*.{so,dylib}", File::FNM_DOTMATCH)
     odie "no native extensions found under #{venv}" if native_extensions.empty?
     system "codesign", "-f", "-s", "-", *native_extensions
     system "codesign", "--verify", *native_extensions
-    bin.install_symlink venv/"bin/brainlayer"
-    bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
 
   service do
