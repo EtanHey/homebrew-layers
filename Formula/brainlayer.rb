@@ -20,6 +20,12 @@ class Brainlayer < Formula
     system python, "-m", "venv", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "brainlayer[cloud]==#{version}"
+    native_extensions = Dir.glob("#{venv}/**/*.{so,dylib}")
+    # Keep signing and verification as separate complete sweeps.
+    # rubocop:disable Style/CombinableLoops
+    native_extensions.each { |path| system "codesign", "-f", "-s", "-", path }
+    native_extensions.each { |path| system "codesign", "--verify", path }
+    # rubocop:enable Style/CombinableLoops
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
