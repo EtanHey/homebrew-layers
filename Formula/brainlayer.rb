@@ -20,6 +20,11 @@ class Brainlayer < Formula
     system python, "-m", "venv", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "brainlayer[cloud]==#{version}"
+    # FNM_DOTMATCH: wheels ship dylibs in dot-dirs (PIL/.dylibs), which a plain glob skips.
+    native_extensions = Dir.glob("#{venv}/**/*.{so,dylib}", File::FNM_DOTMATCH)
+    odie "no native extensions found under #{venv}" if native_extensions.empty?
+    system "codesign", "-f", "-s", "-", *native_extensions
+    system "codesign", "--verify", *native_extensions
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
