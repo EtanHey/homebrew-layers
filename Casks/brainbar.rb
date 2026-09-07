@@ -55,6 +55,11 @@ cask "brainbar" do
         <plist version="1.0">
         <dict>
           <key>Label</key><string>#{label}</string>
+          <!-- #794: without AssociatedBundleIdentifiers macOS attributes the agent to a bare
+               executable instead of BrainBar, so Login Items shows an unnamed background item.
+               The app bundle ships plists carrying this key, but this heredoc REPLACES them at
+               install time -- so it must carry the key too or the cask silently strips the fix. -->
+          <key>AssociatedBundleIdentifiers</key><array><string>com.brainlayer.brainbar</string></array>
           <key>ProgramArguments</key><array><string>#{executable}</string></array>
           <key>RunAtLoad</key><true/>
           <key>KeepAlive</key><true/>
