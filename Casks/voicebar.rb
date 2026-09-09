@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "voicebar" do
-  version "2.2.17"
-  sha256 "3b676e26a8fac22ceb54fdb7221c559b57ee0b29f7794b3ff4f5698912ae10ca"
+  version "2.2.18"
+  sha256 "2210d68277850b2809dd5545bb2edcd857dfe2855846c77cd0111ae3ba8cd2af"
 
   url "https://github.com/EtanHey/voicelayer/releases/download/v#{version}/VoiceBar.zip"
   name "VoiceBar"
