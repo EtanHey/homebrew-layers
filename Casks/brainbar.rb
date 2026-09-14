@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "brainbar" do
-  version "1.5.24"
-  sha256 "2a8441611c9166cd9a275466609df9933faac349adf9989cc982766acbcb02e4"
+  version "1.5.28"
+  sha256 "7c991f168b4cf608dbc30fe69cece1c1e95dbb9c513022fe9645060bceabb7cd"
 
   url "https://github.com/EtanHey/brainlayer/releases/download/v#{version.csv.first}/BrainBar.zip"
   name "BrainBar"
@@ -58,7 +58,7 @@ cask "brainbar" do
           <!-- #794: without AssociatedBundleIdentifiers macOS attributes the agent to a bare
                executable instead of BrainBar, so Login Items shows an unnamed background item.
                The app bundle ships plists carrying this key, but this heredoc REPLACES them at
-               install time -- so it must carry the key too or the cask silently strips the fix. -->
+               install time, so it must carry the key too or the cask silently strips the fix. -->
           <key>AssociatedBundleIdentifiers</key><array><string>com.brainlayer.brainbar</string></array>
           <key>ProgramArguments</key><array><string>#{executable}</string></array>
           <key>RunAtLoad</key><true/>
