@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 cask "brainbar" do
-  version "1.5.35"
-  sha256 "7035cb8417195552f746833e1b0b1f131557864e5696f8cb2eca2a49c07e0a59"
+  version "1.5.36"
+  # Staging only: replace from the downloaded release BrainBar.zip before publication.
+  sha256 "REPLACE_WITH_1_5_36_BRAINBAR_ZIP_SHA256"
 
   url "https://github.com/EtanHey/brainlayer/releases/download/v#{version.csv.first}/BrainBar.zip"
   name "BrainBar"
@@ -72,6 +73,15 @@ cask "brainbar" do
       system_command "/bin/launchctl", args: ["bootstrap", domain, plist_path], must_succeed: false
       system_command "/bin/launchctl", args: ["kickstart", "-k", "#{domain}/#{label}"], must_succeed: false
     end
+
+    # A clean cask install may not have the package LaunchAgents yet. Print the
+    # command's JSON failure without aborting postflight; deploy treats it as a
+    # blocking result after installing the complete LaunchAgent set.
+    system_command "/opt/homebrew/opt/brainlayer/bin/brainlayer",
+                   args:         ["jobs", "restart", "--all", "--verify"],
+                   print_stdout: true,
+                   print_stderr: true,
+                   must_succeed: false
 
     # The daemon must be live before setup verifies the real MCP transport.
     # Migration is exact-match only and verification fails the install loudly
