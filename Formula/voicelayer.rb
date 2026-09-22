@@ -4,8 +4,8 @@
 class Voicelayer < Formula
   desc "Voice I/O layer and MCP tools for AI coding assistants"
   homepage "https://github.com/EtanHey/voicelayer"
-  url "https://registry.npmjs.org/voicelayer-mcp/-/voicelayer-mcp-2.2.20.tgz"
-  sha256 "0f442d115467fccbdbfc8e29b06287930da6d83d61fa7d0ee3e39d1c9825d62b"
+  url "https://registry.npmjs.org/voicelayer-mcp/-/voicelayer-mcp-2.2.21.tgz"
+  sha256 "9b12a3fa01b923dadaeefbad7cfdbe68d84f67d2f0b15fc7b84c07047d566ca6"
   license "Apache-2.0"
 
   depends_on "bun"
