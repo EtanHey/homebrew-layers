@@ -15,13 +15,13 @@ class Brainlayer < Formula
   def install
     venv = libexec/"venv"
     python = Formula["python@3.13"].opt_bin/"python3.13"
-    no_binary = "cbor2,orjson,pydantic-core,rpds-py,safetensors,tokenizers"
+    no_binary = "cbor2,orjson,safetensors,tokenizers"
     ENV.append "RUSTFLAGS", "-C link-arg=-undefined -C link-arg=dynamic_lookup " \
                             "-C link-arg=-Wl,-headerpad_max_install_names"
     # Do not let stale dist-info make pip skip a package missing from the venv.
     system python, "-m", "venv", "--clear", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
-           "brainlayer[cloud]==#{version}"
+           "--only-binary=pydantic-core,rpds-py", "brainlayer[cloud]==#{version}"
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
