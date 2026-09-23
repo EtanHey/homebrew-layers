@@ -25,6 +25,27 @@ def formula_venv_options() -> list[str]:
 
 
 class BrainlayerFormulaVenvTest(unittest.TestCase):
+    def test_pydantic_and_rpds_require_wheels_not_source_builds(self) -> None:
+        source = FORMULA.read_text()
+        no_binary = re.search(r'^\s*no_binary = "([^"]+)"$', source, re.MULTILINE)
+        self.assertIsNotNone(no_binary)
+        assert no_binary is not None
+        self.assertEqual(
+            no_binary.group(1).split(","),
+            ["cbor2", "orjson", "safetensors", "tokenizers"],
+        )
+
+        install = re.search(
+            r'^\s*system venv/"bin/python", "-m", "pip", "install",(?P<options>.*?)'
+            r'"brainlayer\[cloud\]==#\{version\}"$',
+            source,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(install)
+        assert install is not None
+        self.assertIn('"--no-binary=#{no_binary}"', install.group("options"))
+        self.assertIn('"--only-binary=pydantic-core,rpds-py"', install.group("options"))
+
     def test_venv_construction_discards_stale_package_metadata(self) -> None:
         options = formula_venv_options()
         self.assertIn("--clear", options)
