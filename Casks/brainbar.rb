@@ -2,8 +2,7 @@
 
 cask "brainbar" do
   version "1.5.36"
-  # Staging only: replace from the downloaded release BrainBar.zip before publication.
-  sha256 "REPLACE_WITH_1_5_36_BRAINBAR_ZIP_SHA256"
+  sha256 "bc56aa90391ed0ab45e63bc20325b3e79c7cc249ef82937e735bad7fb32901a7"
 
   url "https://github.com/EtanHey/brainlayer/releases/download/v#{version.csv.first}/BrainBar.zip"
   name "BrainBar"
