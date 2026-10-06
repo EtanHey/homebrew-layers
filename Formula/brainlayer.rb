@@ -7,9 +7,15 @@ class Brainlayer < Formula
   url "https://files.pythonhosted.org/packages/51/79/47125b7911ed0ee9a4c26657731b0818127694b1d2ff49c1dceb5ee74730/brainlayer-1.5.48.tar.gz"
   sha256 "8518b00496262b597233eaee409b6fc68a1d5deb032d52621d519b6eda84f218"
   license "Apache-2.0"
+  revision 1
 
   depends_on "rust" => :build
   depends_on "python@3.13"
+
+  resource "en_core_web_sm" do
+    url "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
+    sha256 "1932429db727d4bff3deed6b34cfc05df17794f4a52eeb26cf8928f7c1a0fb85"
+  end
 
   def install
     venv = libexec/"venv"
@@ -21,6 +27,10 @@ class Brainlayer < Formula
     system python, "-m", "venv", "--clear", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
            "--only-binary=pydantic-core,rpds-py", "brainlayer[cloud]==#{version}"
+    model_wheel = buildpath/"en_core_web_sm-3.8.0-py3-none-any.whl"
+    cp resource("en_core_web_sm").cached_download, model_wheel
+    system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-deps", model_wheel
+    system venv/"bin/python", "-c", "import spacy; spacy.load('en_core_web_sm')"
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
