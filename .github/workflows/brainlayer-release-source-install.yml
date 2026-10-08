@@ -1,0 +1,86 @@
+name: BrainLayer clean release source install
+on:
+  workflow_dispatch:
+    inputs:
+      tap_commit:
+        description: Exact reviewed release tap merge commit
+        required: true
+        type: string
+      formula_sha256:
+        description: Exact reviewed candidate formula bytes SHA256
+        required: true
+        type: string
+      release_version:
+        description: Exact package release version
+        required: true
+        type: string
+      release_sha:
+        description: Exact BrainLayer release tag commit
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  source-install:
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      EXPECTED_TAP_COMMIT: ${{ inputs.tap_commit }}
+      EXPECTED_FORMULA_SHA256: ${{ inputs.formula_sha256 }}
+      EXPECTED_VERSION: ${{ inputs.release_version }}
+      EXPECTED_RELEASE_SHA: ${{ inputs.release_sha }}
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - name: Bind clean consumer tap
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$EXPECTED_TAP_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$EXPECTED_FORMULA_SHA256" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$EXPECTED_RELEASE_SHA" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$EXPECTED_VERSION" =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]
+          if brew list --versions etanhey/layers/brainlayer >/dev/null 2>&1; then
+            printf 'FAIL: clean runner required\n'; exit 1
+          fi
+          brew tap etanhey/layers https://github.com/EtanHey/homebrew-layers.git
+          tap_root="$(brew --repo etanhey/layers)"
+          test "$(git -C "$tap_root" rev-parse HEAD)" = "$EXPECTED_TAP_COMMIT"
+          python3 - "$tap_root/Formula/brainlayer.rb" <<'PY'
+          import hashlib,os,pathlib,sys
+          data=pathlib.Path(sys.argv[1]).read_bytes()
+          assert hashlib.sha256(data).hexdigest()==os.environ["EXPECTED_FORMULA_SHA256"]
+          text=data.decode()
+          assert '"brainlayer==#{version}"' in text
+          assert 'brainlayer[cloud]' not in text
+          PY
+      - name: Genuine clean source install and installed gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          brew install --build-from-source etanhey/layers/brainlayer > "$RUNNER_TEMP/tap-install.log" 2>&1
+          python3 - "$RUNNER_TEMP/tap-install.log" <<'PY'
+          import pathlib,re,sys
+          text=pathlib.Path(sys.argv[1]).read_text()
+          assert not re.search(r"does\s+not\s+provide[^\n]*extra|extra[^\n]*not[^\n]*provided",text,re.I)
+          PY
+          keg="$(brew --prefix brainlayer)"
+          "$keg/libexec/venv/bin/python" -I - > "$RUNNER_TEMP/installed-identity.json" <<'PY'
+          import importlib.metadata,os,json
+          import brainlayer.pipeline
+          from brainlayer._build import BUILD_SHA
+          version=importlib.metadata.version('brainlayer')
+          assert version==os.environ['EXPECTED_VERSION']
+          assert BUILD_SHA==os.environ['EXPECTED_RELEASE_SHA']
+          print(json.dumps({'version':version,'build_sha':BUILD_SHA,'module_import':'PASS'}))
+          PY
+          verifier="$("$keg/libexec/venv/bin/python" -I -c 'from importlib.metadata import distribution; print(distribution("brainlayer").locate_file("brainlayer/launchd/release-verify-signatures.sh"))')"
+          bash "$verifier" "$keg" > "$RUNNER_TEMP/signatures.txt"
+      - name: Preserve actual install proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: clean-release-source-install
+          path: |
+            ${{ runner.temp }}/tap-install.log
+            ${{ runner.temp }}/signatures.txt
+            ${{ runner.temp }}/installed-identity.json
