@@ -4,8 +4,8 @@
 class Brainlayer < Formula
   desc "Persistent memory layer and MCP tools for AI agents"
   homepage "https://github.com/EtanHey/brainlayer"
-  url "https://files.pythonhosted.org/packages/51/79/47125b7911ed0ee9a4c26657731b0818127694b1d2ff49c1dceb5ee74730/brainlayer-1.5.48.tar.gz"
-  sha256 "8518b00496262b597233eaee409b6fc68a1d5deb032d52621d519b6eda84f218"
+  url "https://files.pythonhosted.org/packages/91/4d/f6c700edba413d9d371b2e3d36620c3ab7309825f10745a46a5aaafd8426/brainlayer-1.5.49.tar.gz"
+  sha256 "389029f490cb4ed142a952f60e356fd3ca3d16fd7e18821055fb517dd4d1b8d4"
   license "Apache-2.0"
 
   depends_on "rust" => :build
@@ -20,7 +20,7 @@ class Brainlayer < Formula
     # Do not let stale dist-info make pip skip a package missing from the venv.
     system python, "-m", "venv", "--clear", venv
     system venv/"bin/python", "-m", "pip", "install", "--disable-pip-version-check", "--no-binary=#{no_binary}",
-           "--only-binary=pydantic-core,rpds-py", "brainlayer[cloud]==#{version}"
+           "--only-binary=pydantic-core,rpds-py", "brainlayer==#{version}"
     bin.install_symlink venv/"bin/brainlayer"
     bin.install_symlink venv/"bin/brainlayer-mcp-stdio-bridge"
   end
