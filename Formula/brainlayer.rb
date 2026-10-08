@@ -7,6 +7,7 @@ class Brainlayer < Formula
   url "https://files.pythonhosted.org/packages/91/4d/f6c700edba413d9d371b2e3d36620c3ab7309825f10745a46a5aaafd8426/brainlayer-1.5.49.tar.gz"
   sha256 "389029f490cb4ed142a952f60e356fd3ca3d16fd7e18821055fb517dd4d1b8d4"
   license "Apache-2.0"
+  revision 1
 
   depends_on "rust" => :build
   depends_on "python@3.13"
@@ -14,7 +15,7 @@ class Brainlayer < Formula
   def install
     venv = libexec/"venv"
     python = Formula["python@3.13"].opt_bin/"python3.13"
-    no_binary = "cbor2,orjson,safetensors,tokenizers"
+    no_binary = "cbor2,cramjam,orjson,safetensors,tokenizers"
     ENV.append "RUSTFLAGS", "-C link-arg=-undefined -C link-arg=dynamic_lookup " \
                             "-C link-arg=-Wl,-headerpad_max_install_names"
     # Do not let stale dist-info make pip skip a package missing from the venv.
