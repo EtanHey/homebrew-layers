@@ -1,14 +1,16 @@
 class Cmuxlayer < Formula
   desc "Terminal multiplexer MCP server for AI agent workspace orchestration"
   homepage "https://github.com/EtanHey/cmuxlayer"
-  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.104.tar.gz"
-  sha256 "77385173eb978746210391fad91fa5905a8d8eae3367f1730819e85a6f9be645"
+  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.105.tar.gz"
+  sha256 "5cc9d8e4b1cf316fe76342213ee489c49326a1d5dfa830082c86a5fa8ec6c525"
   license "Apache-2.0"
   head "https://github.com/EtanHey/cmuxlayer.git", branch: "main"
 
   depends_on "bun" => :build
   # Runtime: the compiled MCP server runs on node (engines: node >= 20).
   depends_on "node"
+
+  depends_on "jq"
 
   def install
     # Install deps and compile TypeScript -> dist/ with the project's toolchain.
@@ -18,6 +20,19 @@ class Cmuxlayer < Formula
     system "bun", "install", "--frozen-lockfile", "--production"
 
     libexec.install "dist", "node_modules", "package.json"
+
+    # BEGIN cmux-resource-guard packaging
+    system ENV.cc, "-Wall", "-Wextra", "-Werror",
+           "-DGUARD_NODE=#{(formula_opt_bin("node")/"node").to_s.dump}",
+           "-DGUARD_PATH=#{[formula_opt_bin("node"), formula_opt_bin("jq"), HOMEBREW_PREFIX/"bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"].join(":").dump}",
+           "-DGUARD_ENTRY=#{(libexec/"dist/resource-guard.js").to_s.dump}",
+           "launchd/resource-guard/cmux-resource-guard.c", "-o", "cmux-resource-guard"
+    bin.install "cmux-resource-guard"
+    libexec.install "launchd"
+    (libexec/"scripts").install "scripts/install-mcp-reaper.sh"
+    (libexec/"resource-guard-node-path").write "#{formula_opt_bin("node")}/node\n"
+    # END cmux-resource-guard packaging
+
 
     entries = {
       "cmuxlayer"            => "index.js",
