@@ -1,8 +1,8 @@
 class Cmuxlayer < Formula
   desc "Terminal multiplexer MCP server for AI agent workspace orchestration"
   homepage "https://github.com/EtanHey/cmuxlayer"
-  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.105.tar.gz"
-  sha256 "5cc9d8e4b1cf316fe76342213ee489c49326a1d5dfa830082c86a5fa8ec6c525"
+  url "https://github.com/EtanHey/cmuxlayer/archive/refs/tags/v0.4.106.tar.gz"
+  sha256 "1e1c155630e896cfa7ef834337690aaf0c3b19826848c3a8abfd66f14b6b2448"
   license "Apache-2.0"
   head "https://github.com/EtanHey/cmuxlayer.git", branch: "main"
 
@@ -32,7 +32,6 @@ class Cmuxlayer < Formula
     (libexec/"scripts").install "scripts/install-mcp-reaper.sh"
     (libexec/"resource-guard-node-path").write "#{formula_opt_bin("node")}/node\n"
     # END cmux-resource-guard packaging
-
 
     entries = {
       "cmuxlayer"            => "index.js",
