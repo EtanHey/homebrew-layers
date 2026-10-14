@@ -65,13 +65,40 @@ jobs:
           PY
           keg="$(brew --prefix brainlayer)"
           "$keg/libexec/venv/bin/python" -I - > "$RUNNER_TEMP/installed-identity.json" <<'PY'
-          import importlib.metadata,os,json
-          import brainlayer.pipeline
+          import importlib,importlib.metadata,os,json
           from brainlayer._build import BUILD_SHA
+          modules = (
+              'brainlayer.pipeline',
+              'brainlayer.cli_jobs',
+              'brainlayer.component_jobs',
+              'brainlayer.consolidation_plan',
+              'brainlayer.launchd_consolidation',
+              'brainlayer.launchd_install',
+              'brainlayer.launchd_revert',
+              'brainlayer.maintenance_calendar',
+              'brainlayer.maintenance_control',
+              'brainlayer.migration_custody',
+              'brainlayer.migration_journal',
+              'brainlayer.migration_runtime',
+              'brainlayer.observability_transport',
+              'brainlayer.service_supervisor',
+              'brainlayer.supervisor_adapters',
+              'brainlayer.supervisor_child',
+              'brainlayer.supervisor_guard',
+              'brainlayer.supervisor_jobs',
+              'brainlayer.observability_surface',
+              'brainlayer.mcp_stdio_bridge',
+          )
+          for module in modules:
+              importlib.import_module(module)
+          db_files = [str(path) for path in importlib.metadata.distribution('brainlayer').files
+                      if str(path).endswith(('.db', '.db-wal', '.db-shm', '.sqlite', '.sqlite3'))]
+          assert not db_files, f"BrainLayer package contains database files: {db_files}"
           version=importlib.metadata.version('brainlayer')
           assert version==os.environ['EXPECTED_VERSION']
           assert BUILD_SHA==os.environ['EXPECTED_RELEASE_SHA']
-          print(json.dumps({'version':version,'build_sha':BUILD_SHA,'module_import':'PASS'}))
+          print(json.dumps({'version':version,'build_sha':BUILD_SHA,'module_import':'PASS',
+                            'modules':modules,'database_files':db_files}))
           PY
           verifier="$("$keg/libexec/venv/bin/python" -I -c 'from importlib.metadata import distribution; print(distribution("brainlayer").locate_file("brainlayer/launchd/release-verify-signatures.sh"))')"
           bash "$verifier" "$keg" > "$RUNNER_TEMP/signatures.txt"
