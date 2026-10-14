@@ -66,6 +66,8 @@ jobs:
           keg="$(brew --prefix brainlayer)"
           "$keg/libexec/venv/bin/python" -I - > "$RUNNER_TEMP/installed-identity.json" <<'PY'
           import importlib,importlib.metadata,os,json
+          import re
+          from pathlib import Path
           from brainlayer._build import BUILD_SHA
           modules = (
               'brainlayer.pipeline',
@@ -91,14 +93,48 @@ jobs:
           )
           for module in modules:
               importlib.import_module(module)
-          db_files = [str(path) for path in importlib.metadata.distribution('brainlayer').files
-                      if str(path).endswith(('.db', '.db-wal', '.db-shm', '.sqlite', '.sqlite3'))]
+          paths, methods, db_files = set(), ['tree'], []
+          try:
+              dist = importlib.metadata.distribution('brainlayer')
+              base = Path(dist.locate_file(''))
+              with os.scandir(base) as entries:
+                  metadata_paths = [Path(entry.path) for entry in entries
+                                    if entry.name.lower().startswith('brainlayer') and entry.name.lower().endswith(('.dist-info', '.egg-info'))]
+              if not metadata_paths:
+                  raise OSError('package metadata tree is missing')
+              pending = [Path(dist.locate_file('brainlayer')), *metadata_paths]
+              while pending:
+                  path = pending.pop()
+                  if path.is_symlink():
+                      raise OSError(f'linked package path: {path}')
+                  if path.is_dir():
+                      with os.scandir(path) as entries:
+                          pending.extend(Path(entry.path) for entry in entries)
+                  elif path.is_file():
+                      paths.add(path)
+                  else:
+                      raise OSError(f'unenumerable package path: {path}')
+              record = dist.files
+              if record is not None:
+                  methods.append('record')
+                  paths.update(Path(dist.locate_file(path)) for path in record)
+              for path in sorted(paths):
+                  if path.is_symlink() or not path.is_file():
+                      raise OSError(f'unenumerable recorded file: {path}')
+                  with path.open('rb') as handle:
+                      header = handle.read(16)
+                  if re.search(r'\.(?:db|sqlite3?)(?:-(?:wal|shm|journal))?$', path.name, re.I) or header == b'SQLite format 3\0':
+                      db_files.append(str(path))
+          except (OSError, AttributeError, TypeError, ValueError, importlib.metadata.PackageNotFoundError) as error:
+              raise RuntimeError('cannot prove package contains no database') from error
+          assert paths, 'cannot prove package contains no database: no files scanned'
           assert not db_files, f"BrainLayer package contains database files: {db_files}"
           version=importlib.metadata.version('brainlayer')
           assert version==os.environ['EXPECTED_VERSION']
           assert BUILD_SHA==os.environ['EXPECTED_RELEASE_SHA']
           print(json.dumps({'version':version,'build_sha':BUILD_SHA,'module_import':'PASS',
-                            'modules':modules,'database_files':db_files}))
+                            'modules':modules,'database_files':db_files,
+                            'database_scan_methods':methods,'files_scanned':len(paths)}))
           PY
           verifier="$("$keg/libexec/venv/bin/python" -I -c 'from importlib.metadata import distribution; print(distribution("brainlayer").locate_file("brainlayer/launchd/release-verify-signatures.sh"))')"
           bash "$verifier" "$keg" > "$RUNNER_TEMP/signatures.txt"
