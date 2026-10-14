@@ -70,7 +70,8 @@ cask "brainbar" do
       XML
       system_command "/bin/launchctl", args: ["bootout", "#{domain}/#{label}"], must_succeed: false
       system_command "/bin/launchctl", args: ["bootstrap", domain, plist_path], must_succeed: false
-      system_command "/bin/launchctl", args: ["kickstart", "-k", "#{domain}/#{label}"], must_succeed: false
+      # RunAtLoad starts the new instance; keep it alive during postflight.
+      system_command "/bin/launchctl", args: ["kickstart", "#{domain}/#{label}"], must_succeed: false
     end
 
     # A clean cask install may not have the package LaunchAgents yet. Print the

@@ -1,0 +1,15 @@
+name: BrainBar cask regression
+on:
+  pull_request:
+    paths: [Casks/brainbar.rb, test/test_brainbar_cask.py, .github/workflows/brainbar-cask-test.yml]
+permissions:
+  contents: read
+jobs:
+  cask:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with: {ruby-version: '3.3'}
+      - run: python3 -m unittest discover -s test -p test_brainbar_cask.py -v
