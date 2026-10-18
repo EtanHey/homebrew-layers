@@ -4,8 +4,8 @@
 class Brainlayer < Formula
   desc "Persistent memory layer and MCP tools for AI agents"
   homepage "https://github.com/EtanHey/brainlayer"
-  url "https://files.pythonhosted.org/packages/ba/72/edf329ae8e88f8c1a300b74d71dec84d9714d3ae12fe0efc034a34fee159/brainlayer-1.5.61.tar.gz"
-  sha256 "a7100659a51e92bc570f587a6cc7f8b004408ce1c0702399de1fc1fc05500587"
+  url "https://files.pythonhosted.org/packages/3e/b8/09fb76e44f7f828dfd4e6e315bf0afdc453fdd18dbfc87e19d6e564cda7a/brainlayer-1.5.62.tar.gz"
+  sha256 "00030b88bbae50d06d8b0f8ef84e09dde1fb04a34faf6a080743496c922e175f"
   license "Apache-2.0"
 
   depends_on "rust" => :build
