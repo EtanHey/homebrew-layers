@@ -71,13 +71,19 @@ cask "brainbar" do
                    print_stdout: true,
                    print_stderr: true,
                    must_succeed: true
+    activation = system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
+                                args: ["brainbar", "activate", "--help"],
+                                must_succeed: false
+    unless activation.success?
+      opoo "BrainBar activation is unavailable: upgrade the brainlayer formula first, then run brainlayer brainbar activate. BrainBar remains stopped."
+    end
   end
 
   uninstall launchctl: [
               "com.brainlayer.brainbar",
               "com.brainlayer.brainbar-daemon",
             ],
-            quit:      "com.brainlayer.BrainBar",
+            quit:      "com.brainlayer.brainbar",
             # `delete:` always shells out to `sudo rm`, which has no TTY over ssh and
             # aborts the whole uninstall — including the upgrade path, which runs
             # uninstall first. Nothing in ~/Library/LaunchAgents is root-owned, so
@@ -95,12 +101,12 @@ cask "brainbar" do
 
   caveats <<~EOS
     BrainBar connects agents to BrainLayer over /tmp/brainbar.sock.
-    After brew install/upgrade returns successfully, activate and verify BrainBar:
-      brainlayer brainbar activate --verify
-    Activation requires a BrainLayer release containing this command. Upgrade the
-    brainlayer formula first if needed. Postflight only writes agents and config;
-    the service is not ready until activation succeeds. Failure returns JSON and
-    does not retry launches or automatically roll back the app/config.
+    Note: the cask upgrade stops BrainBar; the formula supervisor re-activates it automatically
+    after Homebrew finishes (manual: brainlayer brainbar activate --verify).
+    This requires the released formula containing activation and its running supervisor.
+    Upgrade the brainlayer formula first if activation is unavailable. On activation
+    failure, a job alert needs attention; no automatic retry for the same app build.
+    An operator can retry with brainlayer brainbar activate. Postflight never starts BrainBar.
 
     If setup did not complete during cask install, run:
       brainlayer setup
