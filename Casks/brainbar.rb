@@ -17,36 +17,35 @@ cask "brainbar" do
   # #1: self-heal localaiengine-tainted dangling Caskroom symlinks left by a machine
   # rename, so a reinstall is not blocked by a dead "already installed" artifact.
   # User-owned only — no sudo. Root-owned leftovers still need manual sudo (caveats).
-  preflight_steps do
-    # Keep prefix-only, dangling-only filtering at install time, not DSL evaluation.
-    cleanup = <<~'RUBY'
-      caskroom = ARGV.fetch(0)
-      if Dir.exist?(caskroom)
-        Dir.glob("#{caskroom}/**/*", File::FNM_DOTMATCH).each do |path|
-          next unless File.symlink?(path)
-          next unless File.readlink(path).start_with?("/Users/localaiengine/")
-          next if File.exist?(path)
+  preflight do
+    caskroom = "#{HOMEBREW_PREFIX}/Caskroom/brainbar"
+    next unless Dir.exist?(caskroom)
 
-          File.delete(path)
-        end
-      end
-    RUBY
-    run "/usr/bin/ruby", args: ["-e", cleanup, "{{caskroom_path}}"],
-                         writable_paths: ["{{caskroom_path}}"]
+    Dir.glob("#{caskroom}/**/*", File::FNM_DOTMATCH).each do |path|
+      next unless File.symlink?(path)
+
+      target = File.readlink(path)
+      next unless target.start_with?("/Users/localaiengine/")
+      next if File.exist?(path) # only remove DANGLING (dead-target) tainted links
+
+      File.delete(path)
+    end
   end
 
-  postflight_steps do
+  postflight do
     # Homebrew inherits the previous app's same-signer approval AFTER postflight.
     # Only render agents/migrate config here; explicit activation runs after brew returns.
-    mkdir_p "Library/LaunchAgents", base: :home
-    mkdir_p "Library/Logs/brainlayer", base: :home
-    app_path = "{{appdir}}/BrainBar.app"
+    launch_agents = File.expand_path("~/Library/LaunchAgents")
+    FileUtils.mkdir_p(launch_agents)
+    FileUtils.mkdir_p(File.expand_path("~/Library/Logs/brainlayer"))
+    app_path = "#{appdir}/BrainBar.app"
 
     {
       "com.brainlayer.brainbar-daemon" => "#{app_path}/Contents/MacOS/BrainBarDaemon",
       "com.brainlayer.brainbar"        => "#{app_path}/Contents/MacOS/BrainBar",
     }.each do |label, executable|
-      write_file "Library/LaunchAgents/#{label}.plist", <<~XML, base: :home
+      plist_path = "#{launch_agents}/#{label}.plist"
+      File.write(plist_path, <<~XML)
         <?xml version="1.0" encoding="UTF-8"?>
         <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
         <plist version="1.0">
@@ -67,19 +66,17 @@ cask "brainbar" do
       XML
     end
 
-    run "{{HOMEBREW_PREFIX}}/bin/brainlayer",
-        args: ["setup", "--migrate-mcp", "--no-launchd", "--no-verify-mcp"],
-        print_stdout: true,
-        print_stderr: true,
-        # Migration owns configs across HOME, including ~/Gits/*/.mcp.json.
-        writable_paths: [{ path: ".", base: :home }]
-    help_probe = <<~'SH'
-      if ! "$1" brainbar activate --help; then
-        printf '%s\n' 'Warning: BrainBar activation is unavailable: upgrade the brainlayer formula first, then run brainlayer brainbar activate. BrainBar remains stopped.' >&2
-      fi
-    SH
-    run "/bin/sh", args: ["-c", help_probe, "brainbar-activation-help", "{{HOMEBREW_PREFIX}}/bin/brainlayer"],
-                   must_succeed: false
+    system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
+                   args:         ["setup", "--migrate-mcp", "--no-launchd", "--no-verify-mcp"],
+                   print_stdout: true,
+                   print_stderr: true,
+                   must_succeed: true
+    activation = system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
+                                args: ["brainbar", "activate", "--help"],
+                                must_succeed: false
+    unless activation.success?
+      opoo "BrainBar activation is unavailable: upgrade the brainlayer formula first, then run brainlayer brainbar activate. BrainBar remains stopped."
+    end
   end
 
   uninstall launchctl: [
