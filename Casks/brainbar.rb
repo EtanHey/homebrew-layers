@@ -33,16 +33,12 @@ cask "brainbar" do
   end
 
   postflight do
-    # #7c: BrainBar.app does not spawn its daemon on launch (it only discovers an
-    # existing one), and the daemon/UI LaunchAgents are removed on uninstall and
-    # never recreated — so the fleet brain_search socket /tmp/brainbar.sock stays
-    # dead after a reinstall. Write + (re)bootstrap both agents here so launchd
-    # keeps them alive. Idempotent.
+    # Homebrew inherits the previous app's same-signer approval AFTER postflight.
+    # Only render agents/migrate config here; explicit activation runs after brew returns.
     launch_agents = File.expand_path("~/Library/LaunchAgents")
     FileUtils.mkdir_p(launch_agents)
     FileUtils.mkdir_p(File.expand_path("~/Library/Logs/brainlayer"))
     app_path = "#{appdir}/BrainBar.app"
-    domain = "gui/#{Process.uid}"
 
     {
       "com.brainlayer.brainbar-daemon" => "#{app_path}/Contents/MacOS/BrainBarDaemon",
@@ -68,31 +64,10 @@ cask "brainbar" do
         </dict>
         </plist>
       XML
-      system_command "/bin/launchctl", args: ["bootout", "#{domain}/#{label}"], must_succeed: false
-      system_command "/bin/launchctl", args: ["bootstrap", domain, plist_path], must_succeed: false
-      # RunAtLoad starts the new instance; keep it alive during postflight.
-      system_command "/bin/launchctl", args: ["kickstart", "#{domain}/#{label}"], must_succeed: false
     end
 
-    # A clean cask install may not have the package LaunchAgents yet. Print the
-    # command's JSON failure without aborting postflight; deploy treats it as a
-    # blocking result after installing the complete LaunchAgent set.
-    system_command "/opt/homebrew/opt/brainlayer/bin/brainlayer",
-                   args:         ["jobs", "restart", "--all", "--verify"],
-                   print_stdout: true,
-                   print_stderr: true,
-                   must_succeed: false
-
-    # The daemon must be live before setup verifies the real MCP transport.
-    # Migration is exact-match only and verification fails the install loudly
-    # when the packaged socket cannot initialize and list its tools.
-    100.times do
-      break if File.socket?("/tmp/brainbar.sock")
-
-      sleep 0.1
-    end
     system_command "#{HOMEBREW_PREFIX}/bin/brainlayer",
-                   args:         ["setup", "--migrate-mcp", "--verify-mcp"],
+                   args:         ["setup", "--migrate-mcp", "--no-launchd", "--no-verify-mcp"],
                    print_stdout: true,
                    print_stderr: true,
                    must_succeed: true
@@ -120,8 +95,12 @@ cask "brainbar" do
 
   caveats <<~EOS
     BrainBar connects agents to BrainLayer over /tmp/brainbar.sock.
-    The install bootstraps the com.brainlayer.brainbar-daemon LaunchAgent so the
-    socket survives reinstalls. Verify with: launchctl list | grep brainbar
+    After brew install/upgrade returns successfully, activate and verify BrainBar:
+      brainlayer brainbar activate --verify
+    Activation requires a BrainLayer release containing this command. Upgrade the
+    brainlayer formula first if needed. Postflight only writes agents and config;
+    the service is not ready until activation succeeds. Failure returns JSON and
+    does not retry launches or automatically roll back the app/config.
 
     If setup did not complete during cask install, run:
       brainlayer setup
