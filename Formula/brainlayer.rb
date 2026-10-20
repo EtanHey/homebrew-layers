@@ -4,12 +4,13 @@
 class Brainlayer < Formula
   desc "Persistent memory layer and MCP tools for AI agents"
   homepage "https://github.com/EtanHey/brainlayer"
-  url "https://files.pythonhosted.org/packages/42/cc/0c98a4ebef5476ec8ef829f52da543378ee351a2d152e3951b4a7440d794/brainlayer-1.5.66.tar.gz"
-  sha256 "d1dc1eadf5aa202fe6dd461c2bdfc0b630f41dbf07ed6ab261ae1d82b67669de"
+  url "https://files.pythonhosted.org/packages/d4/2d/4d326d1ae5b603db503b6d5aa49f0b2de5ba4e35ed476a27f954be64273b/brainlayer-1.5.67.tar.gz"
+  sha256 "4a608fec9f8f45400921c3276d65ce4d341ff9ee3a87bf4ed6d3d4a2681c75c6"
   license "Apache-2.0"
 
   depends_on "rust" => :build
   depends_on "python@3.13"
+  depends_on "zstd"
 
   def install
     venv = libexec/"venv"
