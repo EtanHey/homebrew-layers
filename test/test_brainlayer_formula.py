@@ -32,12 +32,12 @@ class BrainlayerFormulaVenvTest(unittest.TestCase):
         assert no_binary is not None
         self.assertEqual(
             no_binary.group(1).split(","),
-            ["cbor2", "orjson", "safetensors", "tokenizers"],
+            ["cbor2", "cramjam", "orjson", "safetensors", "tokenizers"],
         )
 
         install = re.search(
             r'^\s*system venv/"bin/python", "-m", "pip", "install",(?P<options>.*?)'
-            r'"brainlayer\[cloud\]==#\{version\}"$',
+            r'"brainlayer==#\{version\}"$',
             source,
             re.MULTILINE | re.DOTALL,
         )
