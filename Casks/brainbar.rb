@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "brainbar" do
-  version "1.5.68"
-  sha256 "710cdbfd03ec09bd59d8bb8f0f8577bc8449acdca05fd2ba7483dbcac8793ae6"
+  version "1.5.69"
+  sha256 "d1026532182f5293bd1d8dc8fc669d013081be595534ad491fb14b462d2ef532"
 
   url "https://github.com/EtanHey/brainlayer/releases/download/v#{version.csv.first}/BrainBar.zip"
   name "BrainBar"
