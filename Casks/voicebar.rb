@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 cask "voicebar" do
-  version "2.2.58"
-  sha256 "c9123e11977229029d8602ca4d6c701ed6fc75871103741e34a0cf10d717262b"
+  version "2.2.61"
+  sha256 "7360ed863f77364674135d2c245698baf2512c8edd7934d76d493b572cab1b36"
 
   url "https://github.com/EtanHey/voicelayer/releases/download/v#{version}/VoiceBar.zip"
   name "VoiceBar"
@@ -16,10 +16,12 @@ cask "voicebar" do
 
   postflight do
     system_command "#{HOMEBREW_PREFIX}/bin/voicelayer",
-                   args:         ["setup"],
-                   env:          { "PATH" => "#{HOMEBREW_PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin" },
-                   print_stdout: true,
-                   print_stderr: true
+        args:         ["setup", "--cask-postflight"],
+        env:          { "PATH" => "#{HOMEBREW_PREFIX}/bin:/usr/bin:/bin:/usr/sbin:/sbin" },
+        must_succeed: false,
+        print_stdout: true,
+        print_stderr: true
+    system_command "/bin/echo", args: ["VoiceBar bundle retained. If setup reported an error (formula/cask version mismatch or startup failure), update etanhey/layers/voicelayer and etanhey/layers/voicebar together, then run voicelayer setup --cask-postflight from a terminal outside brew. Do not delete update-gate evidence."], must_succeed: false, print_stdout: true
   end
 
   uninstall launchctl: [
